@@ -4,6 +4,8 @@
 
 Built from scratch. Deployed in production. Used daily by a staffing company.
 
+**[Try the Live Demo](https://demo.aristosys.com)** | **[aristosys.com](https://aristosys.com)**
+
 > This repo is a **public demo showcase** — the production codebase is private. All data shown is synthetic.
 
 ---
@@ -153,5 +155,7 @@ The demo includes:
 ## Contact
 
 **Sahil Paul Parokkaran**
+- Live Demo: [demo.aristosys.com](https://demo.aristosys.com)
+- Website: [aristosys.com](https://aristosys.com)
 - LinkedIn: [linkedin.com/in/sahil-parokkaran](https://linkedin.com/in/sahil-parokkaran)
 - Email: spp2135@columbia.edu
