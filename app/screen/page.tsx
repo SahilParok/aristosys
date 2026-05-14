@@ -1,5 +1,6 @@
 'use client';
-import { useState, useRef } from 'react';
+import { useState, useRef, useEffect, Suspense } from 'react';
+import { useSearchParams } from 'next/navigation';
 import DemoNav from '@/components/DemoNav';
 import { makeScreeningReport } from '@/lib/demoReports';
 
@@ -51,7 +52,8 @@ function StepConnector({ completed }: { completed: boolean }) {
   return <div style={{ flex: 1, height: '2px', background: completed ? '#10b981' : 'rgba(255,255,255,0.1)', alignSelf: 'center' }} />;
 }
 
-export default function ScreenPage() {
+function ScreenPageContent() {
+  const searchParams = useSearchParams();
   const [step, setStep] = useState(1);
   const [client, setClient] = useState('');
   const [jd, setJd] = useState('');
@@ -63,6 +65,17 @@ export default function ScreenPage() {
   const [progress, setProgress] = useState(0);
   const [expandedReport, setExpandedReport] = useState<number | null>(null);
   const fileRef = useRef<HTMLInputElement>(null);
+
+  useEffect(() => {
+    const c = searchParams.get('client');
+    const j = searchParams.get('jd');
+    const r = searchParams.get('recruiter');
+    const s = searchParams.get('step');
+    if (c && CLIENTS.includes(c)) setClient(c);
+    if (j) setJd(j);
+    if (r && RECRUITERS.includes(r)) setRecruiter(r);
+    if (s === '2' && c && j && r) setStep(2);
+  }, [searchParams]);
 
   const canProceed1 = client && jd && recruiter;
   const clientJDs = client ? (JDS[client] || []) : [];
@@ -246,5 +259,13 @@ export default function ScreenPage() {
         )}
       </main>
     </div>
+  );
+}
+
+export default function ScreenPage() {
+  return (
+    <Suspense fallback={<div style={{ minHeight: '100vh', background: '#0f172a' }} />}>
+      <ScreenPageContent />
+    </Suspense>
   );
 }

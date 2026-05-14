@@ -13,11 +13,11 @@ const STAGE_LABELS: Record<string, string> = {
 const agingColor = (d: number) => d <= 3 ? '#10b981' : d <= 7 ? '#f59e0b' : '#ef4444';
 
 const ATTENTION = [
-  { name: 'Pooja Deshmukh', title: 'Senior Software Engineer', client: 'Horizon Tech Partners', stage: 'submitted_to_client', days: 6 },
-  { name: 'Nitin Kapoor', title: 'Senior Software Engineer', client: 'Horizon Tech Partners', stage: 'l2_interview', days: 9 },
-  { name: 'Gaurav Chandra', title: 'DevOps Engineer', client: 'NovaByte Systems', stage: 'submitted_to_client', days: 4 },
-  { name: 'Anjali Rao', title: 'Senior Software Engineer', client: 'Horizon Tech Partners', stage: 'prospect', days: 3 },
-  { name: 'Sunita Bose', title: 'DevOps Engineer', client: 'NovaByte Systems', stage: 'prospect', days: 3 },
+  { name: 'Pooja Deshmukh', title: 'Senior Software Engineer', client: 'Horizon Tech Partners', client_id: 'c1', jd_id: 'jd1', stage: 'submitted_to_client', days: 6 },
+  { name: 'Nitin Kapoor', title: 'Senior Software Engineer', client: 'Horizon Tech Partners', client_id: 'c1', jd_id: 'jd1', stage: 'l2_interview', days: 9 },
+  { name: 'Gaurav Chandra', title: 'DevOps Engineer', client: 'NovaByte Systems', client_id: 'c2', jd_id: 'jd3', stage: 'submitted_to_client', days: 4 },
+  { name: 'Anjali Rao', title: 'Senior Software Engineer', client: 'Horizon Tech Partners', client_id: 'c1', jd_id: 'jd1', stage: 'prospect', days: 3 },
+  { name: 'Sunita Bose', title: 'DevOps Engineer', client: 'NovaByte Systems', client_id: 'c2', jd_id: 'jd3', stage: 'prospect', days: 3 },
 ];
 
 const ACTIVITY = [
@@ -89,7 +89,7 @@ export default function Dashboard() {
                   <div style={{ textAlign: 'right' }}>
                     <div style={{ color: agingColor(c.days), fontSize: '18px', fontWeight: '700' }}>{c.days}d</div>
                     <div style={{ color: 'rgba(255,255,255,0.4)', fontSize: '11px' }}>in stage</div>
-                    <Link href="/jobs" style={{ display: 'inline-block', marginTop: '6px', padding: '4px 8px', background: 'rgba(59,130,246,0.2)', border: 'none', borderRadius: '4px', color: '#60a5fa', fontSize: '11px', textDecoration: 'none' }}>View →</Link>
+                    <Link href={`/jobs?client=${c.client_id}&jd=${c.jd_id}&highlight=${encodeURIComponent(c.name)}`} style={{ display: 'inline-block', marginTop: '6px', padding: '4px 8px', background: 'rgba(59,130,246,0.2)', border: 'none', borderRadius: '4px', color: '#60a5fa', fontSize: '11px', textDecoration: 'none' }}>View →</Link>
                   </div>
                 </div>
               ))}

@@ -1,5 +1,6 @@
 'use client';
-import { useState } from 'react';
+import { useState, useEffect, Suspense } from 'react';
+import { useRouter, useSearchParams } from 'next/navigation';
 import DemoNav from '@/components/DemoNav';
 import { DEMO_REPORTS } from '@/lib/demoReports';
 
@@ -10,9 +11,9 @@ const CLIENTS = [
   { id: 'c3', name: 'PeakLogic Analytics' },
 ];
 
-const JDS: Record<string, { id: string; title: string; client_id: string; status: string; analysis: any }[]> = {
+const JDS: Record<string, { id: string; title: string; client_id: string; status: string; recruiter: string; manager: string; num_positions: number; client_managers: string[]; analysis: any }[]> = {
   c1: [
-    { id: 'jd1', title: 'Senior Software Engineer', client_id: 'c1', status: 'active', analysis: {
+    { id: 'jd1', title: 'Senior Software Engineer', client_id: 'c1', status: 'active', recruiter: 'Nisha Devi', manager: 'Rohit Verma', num_positions: 3, client_managers: ['Anand Kapoor'], analysis: {
       job_classification: 'strict_engineering', experience_min: 4, experience_max: 8, location: 'Bangalore, Hyderabad', work_mode: 'Hybrid',
       role_identity: 'Backend-heavy Java engineer with microservices architecture ownership and cloud deployment experience.',
       skills: [
@@ -22,7 +23,7 @@ const JDS: Record<string, { id: string; title: string; client_id: string; status
       ],
       key_responsibilities: ['Design and build scalable backend services', 'Own microservice architecture decisions', 'Collaborate with frontend and DevOps teams', 'Participate in code reviews and mentoring'],
     }},
-    { id: 'jd2', title: 'Full Stack Developer', client_id: 'c1', status: 'active', analysis: {
+    { id: 'jd2', title: 'Full Stack Developer', client_id: 'c1', status: 'active', recruiter: 'Rekha Prasad', manager: 'Deepak Thakur', num_positions: 2, client_managers: ['Anand Kapoor', 'Meera Pillai'], analysis: {
       job_classification: 'moderate_engineering', experience_min: 2, experience_max: 5, location: 'Bangalore', work_mode: 'Remote',
       role_identity: 'Product-focused full stack developer working across React frontend and Node.js backend.',
       skills: [
@@ -32,7 +33,7 @@ const JDS: Record<string, { id: string; title: string; client_id: string; status
       ],
     }},
   ],
-  c2: [{ id: 'jd3', title: 'DevOps Engineer', client_id: 'c2', status: 'active', analysis: {
+  c2: [{ id: 'jd3', title: 'DevOps Engineer', client_id: 'c2', status: 'active', recruiter: 'Fatima Khan', manager: 'Anita Sharma', num_positions: 2, client_managers: ['Vikram Joshi'], analysis: {
     job_classification: 'strict_engineering', experience_min: 3, experience_max: 7, location: 'Mumbai, Pune', work_mode: 'Hybrid',
     role_identity: 'Infrastructure-focused DevOps engineer managing cloud deployments and CI/CD pipelines.',
     skills: [
@@ -41,7 +42,7 @@ const JDS: Record<string, { id: string; title: string; client_id: string; status
       { name: 'Ansible', tier: 'bonus' }, { name: 'Prometheus', tier: 'bonus' },
     ],
   }}],
-  c3: [{ id: 'jd4', title: 'Data Engineer', client_id: 'c3', status: 'active', analysis: {
+  c3: [{ id: 'jd4', title: 'Data Engineer', client_id: 'c3', status: 'active', recruiter: 'Tanya Mathur', manager: 'Rohit Verma', num_positions: 1, client_managers: ['Sanjana Iyer'], analysis: {
     job_classification: 'moderate_engineering', experience_min: 3, experience_max: 6, location: 'Hyderabad', work_mode: 'On-site',
     role_identity: 'Data pipeline engineer working with Spark and cloud data warehousing.',
     skills: [
@@ -111,13 +112,28 @@ function calcWorkingDays(dateStr: string): number {
 
 function formatDate(d: string) { return new Date(d).toLocaleDateString('en-IN', { day: '2-digit', month: 'short' }); }
 
-export default function JobsPage() {
+function JobsPageContent() {
+  const router = useRouter();
+  const searchParams = useSearchParams();
   const [clientId, setClientId] = useState('');
   const [jdId, setJdId] = useState('');
   const [showAnalysis, setShowAnalysis] = useState(false);
   const [stageFilter, setStageFilter] = useState('');
   const [search, setSearch] = useState('');
   const [reportCandidate, setReportCandidate] = useState<DemoCandidate | null>(null);
+  const [sortKey, setSortKey] = useState<string>('');
+  const [sortDir, setSortDir] = useState<'asc' | 'desc'>('desc');
+  const [editJDOpen, setEditJDOpen] = useState(false);
+  const [highlightName, setHighlightName] = useState<string>('');
+
+  useEffect(() => {
+    const c = searchParams.get('client');
+    const j = searchParams.get('jd');
+    const h = searchParams.get('highlight');
+    if (c) setClientId(c);
+    if (j) setJdId(j);
+    if (h) setHighlightName(h);
+  }, [searchParams]);
 
   const clientJDs = clientId ? (JDS[clientId] || []) : [];
   const jd = clientJDs.find(j => j.id === jdId);
@@ -129,6 +145,39 @@ export default function JobsPage() {
   });
 
   const doneStages = ['selected', 'rejected'];
+
+  function handleSort(key: string) {
+    if (sortKey === key) setSortDir(sortDir === 'asc' ? 'desc' : 'asc');
+    else { setSortKey(key); setSortDir('desc'); }
+  }
+
+  const sortedFiltered = sortKey ? [...filtered].sort((a, b) => {
+    const get = (c: DemoCandidate): string | number => {
+      switch (sortKey) {
+        case 'name': return c.name;
+        case 'recruiter': return c.recruiter;
+        case 'score': return c.score;
+        case 'tech': return c.tech ?? c.ai_tech ?? -1;
+        case 'ai': return c.ai_tech ?? -1;
+        case 'aging': return doneStages.includes(c.stage) ? -1 : calcWorkingDays(c.stage_date);
+        case 'stage': return c.stage;
+        case 'stage_date': return new Date(c.stage_date).getTime();
+        default: return 0;
+      }
+    };
+    const av = get(a), bv = get(b);
+    if (typeof av === 'string' && typeof bv === 'string') {
+      return sortDir === 'asc' ? av.localeCompare(bv) : bv.localeCompare(av);
+    }
+    return sortDir === 'asc' ? (av as number) - (bv as number) : (bv as number) - (av as number);
+  }) : filtered;
+
+  function handleScreenMore() {
+    if (!jd) return;
+    const clientName = CLIENTS.find(c => c.id === jd.client_id)?.name || '';
+    const params = new URLSearchParams({ client: clientName, jd: jd.title, recruiter: jd.recruiter, step: '2' });
+    router.push(`/screen?${params.toString()}`);
+  }
 
   return (
     <div style={{ height: '100vh', background: '#0f172a', overflow: 'hidden' }}>
@@ -180,16 +229,17 @@ export default function JobsPage() {
                       {CLIENTS.find(c => c.id === jd.client_id)?.name} • {candidates.length} candidates
                     </div>
                     <div style={{ display: 'flex', gap: '10px', marginTop: '8px', flexWrap: 'wrap' }}>
-                      <span style={{ padding: '4px 10px', borderRadius: '15px', fontSize: '11px', background: 'rgba(59,130,246,0.2)', color: '#60a5fa' }}>Recruiter: Nisha D., Tanya M.</span>
-                      <span style={{ padding: '4px 10px', borderRadius: '15px', fontSize: '11px', background: 'rgba(236,72,153,0.2)', color: '#f472b6' }}>{jd.analysis.experience_min ? `${jd.analysis.experience_min}-${jd.analysis.experience_max} yrs` : ''}</span>
-                      <span style={{ padding: '4px 10px', borderRadius: '15px', fontSize: '11px', background: 'rgba(139,92,246,0.2)', color: '#a78bfa' }}>AI Notes</span>
+                      <span style={{ padding: '4px 10px', borderRadius: '15px', fontSize: '11px', background: 'rgba(59,130,246,0.2)', color: '#60a5fa' }}>Recruiter: {jd.recruiter}</span>
+                      <span style={{ padding: '4px 10px', borderRadius: '15px', fontSize: '11px', background: 'rgba(236,72,153,0.2)', color: '#f472b6' }}>Manager: {jd.manager}</span>
+                      <span style={{ padding: '4px 10px', borderRadius: '15px', fontSize: '11px', background: 'rgba(245,158,11,0.2)', color: '#fbbf24' }}>{jd.num_positions} {jd.num_positions === 1 ? 'Position' : 'Positions'}</span>
+                      <span style={{ padding: '4px 10px', borderRadius: '15px', fontSize: '11px', background: 'rgba(139,92,246,0.2)', color: '#a78bfa' }}>Client Manager{jd.client_managers.length > 1 ? 's' : ''}: {jd.client_managers.join(', ')}</span>
                     </div>
                   </div>
                   <div style={{ display: 'flex', gap: '10px' }}>
                     {['📄 View JD', '📤 Upload JD', '✏️ Edit JD'].map(b => (
-                      <button key={b} style={{ padding: '8px 15px', background: 'rgba(59,130,246,0.2)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: '6px', color: '#60a5fa', fontSize: '12px', cursor: 'pointer' }}>{b}</button>
+                      <button key={b} onClick={b === '✏️ Edit JD' ? () => setEditJDOpen(true) : undefined} style={{ padding: '8px 15px', background: 'rgba(59,130,246,0.2)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: '6px', color: '#60a5fa', fontSize: '12px', cursor: 'pointer' }}>{b}</button>
                     ))}
-                    <button style={{ padding: '8px 15px', background: 'linear-gradient(135deg,#8b5cf6,#a855f7)', border: 'none', borderRadius: '6px', color: 'white', fontSize: '12px', cursor: 'pointer', fontWeight: '500' }}>🔍 Screen More</button>
+                    <button onClick={handleScreenMore} style={{ padding: '8px 15px', background: 'linear-gradient(135deg,#8b5cf6,#a855f7)', border: 'none', borderRadius: '6px', color: 'white', fontSize: '12px', cursor: 'pointer', fontWeight: '500' }}>🔍 Screen More</button>
                     <button style={{ padding: '8px 15px', background: '#10b981', border: 'none', borderRadius: '6px', color: 'white', fontSize: '12px', cursor: 'pointer' }}>Active</button>
                     <button style={{ padding: '8px 15px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', color: 'white', fontSize: '12px', cursor: 'pointer' }}>On Hold</button>
                     <button style={{ padding: '8px 15px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', color: 'white', fontSize: '12px', cursor: 'pointer' }}>Closed</button>
@@ -256,17 +306,27 @@ export default function JobsPage() {
                 <table style={{ width: '100%', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
-                      {['Name', 'Recruiter', 'Score', 'Tech/Comm', 'AI', 'Aging', 'Stage', 'Stage Date', 'Actions'].map((h, i) => (
-                        <th key={h} style={{ textAlign: i === 8 ? 'right' : i >= 2 && i <= 5 ? 'center' : 'left', padding: '8px 10px', color: 'rgba(255,255,255,0.5)', fontSize: '11px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px', cursor: 'pointer', userSelect: 'none' }}>{h}</th>
+                      {[
+                        { label: 'Name', key: 'name' },
+                        { label: 'Recruiter', key: 'recruiter' },
+                        { label: 'Score', key: 'score' },
+                        { label: 'Tech/Comm', key: 'tech' },
+                        { label: 'AI', key: 'ai' },
+                        { label: 'Aging', key: 'aging' },
+                        { label: 'Stage', key: 'stage' },
+                        { label: 'Stage Date', key: 'stage_date' },
+                        { label: 'Actions', key: '' },
+                      ].map((h, i) => (
+                        <th key={h.label} onClick={() => h.key && handleSort(h.key)} style={{ textAlign: i === 8 ? 'right' : i >= 2 && i <= 5 ? 'center' : 'left', padding: '8px 10px', color: sortKey === h.key && h.key ? '#60a5fa' : 'rgba(255,255,255,0.5)', fontSize: '11px', fontWeight: '600', textTransform: 'uppercase', letterSpacing: '0.5px', cursor: h.key ? 'pointer' : 'default', userSelect: 'none' }}>{h.label}{sortKey === h.key && h.key && (sortDir === 'asc' ? ' ▲' : ' ▼')}</th>
                       ))}
                     </tr>
                   </thead>
                   <tbody>
-                    {filtered.map((c, i) => {
+                    {sortedFiltered.map((c, i) => {
                       const aging = doneStages.includes(c.stage) ? null : calcWorkingDays(c.stage_date);
                       const agingColor = aging === null ? 'rgba(255,255,255,0.3)' : aging > 7 ? '#ef4444' : aging >= 3 ? '#f59e0b' : '#22c55e';
                       return (
-                        <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)' }}>
+                        <tr key={i} style={{ borderBottom: '1px solid rgba(255,255,255,0.04)', background: highlightName === c.name ? 'rgba(96,165,250,0.08)' : 'transparent', boxShadow: highlightName === c.name ? 'inset 3px 0 0 #60a5fa' : 'none' }}>
                           <td style={{ padding: '6px 10px' }}>
                             <div style={{ display: 'flex', alignItems: 'center', gap: '6px' }}>
                               <span style={{ color: 'white', fontSize: '13px', fontWeight: '500' }}>{c.name}</span>
@@ -302,6 +362,55 @@ export default function JobsPage() {
         </div>
       </div>
 
+      {/* Edit JD Modal (read-only demo) */}
+      {editJDOpen && jd && (
+        <div style={{ position: 'fixed', top: 0, left: 0, right: 0, bottom: 0, background: 'rgba(0,0,0,0.8)', display: 'flex', alignItems: 'center', justifyContent: 'center', zIndex: 1000 }} onClick={() => setEditJDOpen(false)}>
+          <div onClick={e => e.stopPropagation()} style={{ background: '#1e293b', borderRadius: '16px', width: '720px', maxWidth: '95%', maxHeight: '90vh', overflow: 'auto', color: 'white' }}>
+            <div style={{ position: 'sticky', top: 0, background: '#1e293b', padding: '18px 24px', borderBottom: '1px solid rgba(255,255,255,0.1)', display: 'flex', justifyContent: 'space-between', alignItems: 'center', zIndex: 10 }}>
+              <h2 style={{ margin: 0, fontSize: '18px', fontWeight: 600 }}>✏️ Edit JD — {jd.title}</h2>
+              <button onClick={() => setEditJDOpen(false)} style={{ padding: '8px 16px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', cursor: 'pointer', color: 'white', fontSize: '13px' }}>Close</button>
+            </div>
+            <div style={{ padding: '20px 24px' }}>
+              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '18px' }}>
+                {[
+                  ['JD Title', jd.title],
+                  ['Client', CLIENTS.find(c => c.id === jd.client_id)?.name || ''],
+                  ['Recruiter', jd.recruiter],
+                  ['Manager', jd.manager],
+                  ['Positions', String(jd.num_positions)],
+                  ['Client Managers', jd.client_managers.join(', ')],
+                  ['Location', jd.analysis.location || '—'],
+                  ['Work Mode', jd.analysis.work_mode || '—'],
+                  ['Experience', jd.analysis.experience_min && jd.analysis.experience_max ? `${jd.analysis.experience_min}-${jd.analysis.experience_max} years` : '—'],
+                  ['Status', 'Active'],
+                ].map(([label, value]) => (
+                  <div key={label}>
+                    <div style={{ color: 'rgba(255,255,255,0.55)', fontSize: '11px', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>{label}</div>
+                    <div style={{ padding: '9px 12px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '7px', color: 'white', fontSize: '13px' }}>{value || '—'}</div>
+                  </div>
+                ))}
+              </div>
+              <div style={{ marginBottom: '14px' }}>
+                <div style={{ color: 'rgba(255,255,255,0.55)', fontSize: '11px', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>AI Interview Notes</div>
+                <textarea readOnly value="" placeholder="(No AI interview notes)" style={{ width: '100%', minHeight: '60px', padding: '10px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '7px', color: 'rgba(255,255,255,0.7)', fontSize: '13px', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+              </div>
+              <div style={{ marginBottom: '18px' }}>
+                <div style={{ color: 'rgba(255,255,255,0.55)', fontSize: '11px', marginBottom: '6px', textTransform: 'uppercase', letterSpacing: '0.5px' }}>Comments</div>
+                <textarea readOnly value="" placeholder="(No comments)" style={{ width: '100%', minHeight: '60px', padding: '10px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '7px', color: 'rgba(255,255,255,0.7)', fontSize: '13px', resize: 'vertical', fontFamily: 'inherit', boxSizing: 'border-box' }} />
+              </div>
+              <div style={{ display: 'flex', gap: '10px', marginBottom: '16px', flexWrap: 'wrap' }}>
+                <button style={{ padding: '9px 16px', background: 'rgba(59,130,246,0.2)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: '7px', color: '#60a5fa', fontSize: '12px', cursor: 'pointer' }}>📤 Re-upload JD</button>
+                <button style={{ padding: '9px 16px', background: 'rgba(139,92,246,0.2)', border: '1px solid rgba(139,92,246,0.3)', borderRadius: '7px', color: '#a78bfa', fontSize: '12px', cursor: 'pointer' }}>🔄 Re-analyze with AI</button>
+                <button style={{ padding: '9px 16px', background: 'rgba(16,185,129,0.2)', border: '1px solid rgba(16,185,129,0.3)', borderRadius: '7px', color: '#34d399', fontSize: '12px', cursor: 'pointer' }}>💾 Save Changes</button>
+              </div>
+              <div style={{ padding: '10px 14px', background: 'rgba(245,158,11,0.1)', border: '1px solid rgba(245,158,11,0.2)', borderRadius: '7px', color: '#fbbf24', fontSize: '11px' }}>
+                ℹ️ Demo view — fields are read-only here. The real product allows editing every value, triggers AI re-analysis on save, and writes the diff to the audit trail.
+              </div>
+            </div>
+          </div>
+        </div>
+      )}
+
       {/* Report Modal */}
       {reportCandidate && (() => {
         const reports = DEMO_REPORTS[reportCandidate.name];
@@ -330,5 +439,13 @@ export default function JobsPage() {
         );
       })()}
     </div>
+  );
+}
+
+export default function JobsPage() {
+  return (
+    <Suspense fallback={<div style={{ height: '100vh', background: '#0f172a' }} />}>
+      <JobsPageContent />
+    </Suspense>
   );
 }

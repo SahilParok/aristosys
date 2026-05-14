@@ -2,30 +2,32 @@
 import { useState } from 'react';
 import DemoNav from '@/components/DemoNav';
 
-const RECRUITERS = [
-  { name: 'Nisha Devi', email: 'nisha@demo.com', phone: '+91 98100 11001', candidates: 38, jds: 4, assigned: [
-    { title: 'Senior Software Engineer', client: 'Horizon Tech Partners', status: 'active' },
-    { title: 'Full Stack Developer', client: 'Horizon Tech Partners', status: 'active' },
-    { title: 'DevOps Engineer', client: 'NovaByte Systems', status: 'active' },
-    { title: 'React Developer', client: 'NovaByte Systems', status: 'closed' },
+interface AssignedJD { title: string; client: string; status: string; deficit: boolean; critical: boolean; difficult: boolean }
+
+const RECRUITERS: { name: string; email: string; phone: string; candidates: number; assigned: AssignedJD[] }[] = [
+  { name: 'Nisha Devi', email: 'nisha@demo.com', phone: '+91 98100 11001', candidates: 38, assigned: [
+    { title: 'Senior Software Engineer', client: 'Horizon Tech Partners', status: 'active', deficit: true, critical: true, difficult: false },
+    { title: 'Full Stack Developer', client: 'Horizon Tech Partners', status: 'active', deficit: false, critical: false, difficult: true },
+    { title: 'DevOps Engineer', client: 'NovaByte Systems', status: 'active', deficit: false, critical: false, difficult: false },
+    { title: 'React Developer', client: 'NovaByte Systems', status: 'closed', deficit: false, critical: false, difficult: false },
   ]},
-  { name: 'Tanya Mathur', email: 'tanya@demo.com', phone: '+91 98100 11002', candidates: 29, jds: 3, assigned: [
-    { title: 'Senior Software Engineer', client: 'Horizon Tech Partners', status: 'active' },
-    { title: 'Data Engineer', client: 'PeakLogic Analytics', status: 'active' },
-    { title: 'Backend Developer', client: 'Horizon Tech Partners', status: 'closed' },
+  { name: 'Tanya Mathur', email: 'tanya@demo.com', phone: '+91 98100 11002', candidates: 29, assigned: [
+    { title: 'Senior Software Engineer', client: 'Horizon Tech Partners', status: 'active', deficit: false, critical: false, difficult: false },
+    { title: 'Data Engineer', client: 'PeakLogic Analytics', status: 'active', deficit: true, critical: false, difficult: true },
+    { title: 'Backend Developer', client: 'Horizon Tech Partners', status: 'closed', deficit: false, critical: false, difficult: false },
   ]},
-  { name: 'Fatima Khan', email: 'fatima@demo.com', phone: '+91 98100 11003', candidates: 24, jds: 3, assigned: [
-    { title: 'Senior Software Engineer', client: 'Horizon Tech Partners', status: 'active' },
-    { title: 'DevOps Engineer', client: 'NovaByte Systems', status: 'active' },
-    { title: 'System Admin', client: 'Meridian Digital', status: 'closed' },
+  { name: 'Fatima Khan', email: 'fatima@demo.com', phone: '+91 98100 11003', candidates: 24, assigned: [
+    { title: 'Senior Software Engineer', client: 'Horizon Tech Partners', status: 'active', deficit: false, critical: true, difficult: false },
+    { title: 'DevOps Engineer', client: 'NovaByte Systems', status: 'active', deficit: false, critical: false, difficult: false },
+    { title: 'System Admin', client: 'Meridian Digital', status: 'closed', deficit: false, critical: false, difficult: false },
   ]},
-  { name: 'Rekha Prasad', email: 'rekha@demo.com', phone: '+91 98100 11004', candidates: 21, jds: 2, assigned: [
-    { title: 'Full Stack Developer', client: 'Horizon Tech Partners', status: 'active' },
-    { title: 'Data Engineer', client: 'PeakLogic Analytics', status: 'active' },
+  { name: 'Rekha Prasad', email: 'rekha@demo.com', phone: '+91 98100 11004', candidates: 21, assigned: [
+    { title: 'Full Stack Developer', client: 'Horizon Tech Partners', status: 'active', deficit: false, critical: false, difficult: true },
+    { title: 'Data Engineer', client: 'PeakLogic Analytics', status: 'active', deficit: false, critical: false, difficult: false },
   ]},
-  { name: 'Prerna Saxena', email: 'prerna@demo.com', phone: '+91 98100 11005', candidates: 18, jds: 2, assigned: [
-    { title: 'Full Stack Developer', client: 'Horizon Tech Partners', status: 'active' },
-    { title: 'DevOps Engineer', client: 'NovaByte Systems', status: 'active' },
+  { name: 'Prerna Saxena', email: 'prerna@demo.com', phone: '+91 98100 11005', candidates: 18, assigned: [
+    { title: 'Full Stack Developer', client: 'Horizon Tech Partners', status: 'active', deficit: true, critical: true, difficult: true },
+    { title: 'DevOps Engineer', client: 'NovaByte Systems', status: 'active', deficit: false, critical: false, difficult: false },
   ]},
 ];
 
@@ -52,9 +54,32 @@ const PANEL = [
 
 type Tab = 'recruiters' | 'managers' | 'panel';
 
+function SliderToggle({ label, on, onChange, color }: { label: string; on: boolean; onChange: () => void; color: string }) {
+  return (
+    <div onClick={onChange} style={{ display: 'inline-flex', alignItems: 'center', gap: '7px', cursor: 'pointer', userSelect: 'none' }}>
+      <div style={{ width: '28px', height: '16px', background: on ? color : 'rgba(255,255,255,0.15)', borderRadius: '10px', position: 'relative', transition: 'background 0.2s', flexShrink: 0 }}>
+        <div style={{ width: '12px', height: '12px', background: 'white', borderRadius: '50%', position: 'absolute', top: '2px', left: on ? '14px' : '2px', transition: 'left 0.2s' }} />
+      </div>
+      <span style={{ fontSize: '11px', color: on ? color : 'rgba(255,255,255,0.5)', fontWeight: 500 }}>{label}</span>
+    </div>
+  );
+}
+
 export default function InternalTeam() {
   const [tab, setTab] = useState<Tab>('recruiters');
   const [expanded, setExpanded] = useState<string | null>(null);
+  const [jdFlags, setJdFlags] = useState<Record<string, { critical: boolean; difficult: boolean }>>(() => {
+    const init: Record<string, { critical: boolean; difficult: boolean }> = {};
+    RECRUITERS.forEach(r => r.assigned.forEach(jd => {
+      init[`${r.name}-${jd.title}`] = { critical: jd.critical, difficult: jd.difficult };
+    }));
+    return init;
+  });
+
+  const toggleFlag = (recruiter: string, jdTitle: string, flag: 'critical' | 'difficult') => {
+    const key = `${recruiter}-${jdTitle}`;
+    setJdFlags(prev => ({ ...prev, [key]: { ...prev[key], [flag]: !prev[key][flag] } }));
+  };
 
   const tabBtn = (t: Tab, count: number, color: string, activeColor: string) => (
     <button onClick={() => { setTab(t); setExpanded(null); }} style={{
@@ -103,7 +128,10 @@ export default function InternalTeam() {
                 <button style={{ padding: '8px 16px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', color: 'rgba(255,255,255,0.7)', fontSize: '13px', cursor: 'pointer' }}>🔄 Refresh</button>
               </div>
               <div style={{ maxHeight: '600px', overflow: 'auto' }}>
-                {RECRUITERS.map((r, i) => (
+                {RECRUITERS.map((r, i) => {
+                  const activeJds = r.assigned.filter(j => j.status === 'active').length;
+                  const deficitJds = r.assigned.filter(j => j.deficit).length;
+                  return (
                   <div key={i}>
                     <div style={{ padding: '15px 25px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '15px', background: expanded === r.name ? 'rgba(59,130,246,0.1)' : 'transparent' }}>
                       <div style={{ flex: 1 }}>
@@ -112,7 +140,8 @@ export default function InternalTeam() {
                       </div>
                       <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
                         <span style={{ padding: '4px 10px', borderRadius: '15px', fontSize: '12px', background: 'rgba(59,130,246,0.2)', color: '#60a5fa' }}>{r.candidates} candidates</span>
-                        <span style={{ padding: '4px 10px', borderRadius: '15px', fontSize: '12px', background: 'rgba(16,185,129,0.2)', color: '#10b981' }}>{r.jds} JDs</span>
+                        <span style={{ padding: '4px 10px', borderRadius: '15px', fontSize: '12px', background: 'rgba(16,185,129,0.2)', color: '#34d399' }}>{activeJds} JDs</span>
+                        {deficitJds > 0 && <span style={{ padding: '4px 10px', borderRadius: '15px', fontSize: '12px', background: 'rgba(239,68,68,0.2)', color: '#f87171' }}>{deficitJds} deficit JDs</span>}
                         <button onClick={() => setExpanded(expanded === r.name ? null : r.name)} style={{ padding: '6px 12px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', color: 'rgba(255,255,255,0.7)', fontSize: '12px', cursor: 'pointer' }}>{expanded === r.name ? '▼' : '▶'}</button>
                         <button style={{ padding: '6px 12px', background: 'rgba(16,185,129,0.2)', border: 'none', borderRadius: '6px', color: '#10b981', fontSize: '12px', cursor: 'pointer' }}>+ Assign JD</button>
                         <button style={{ padding: '6px 12px', background: 'rgba(59,130,246,0.2)', border: 'none', borderRadius: '6px', color: '#60a5fa', fontSize: '12px', cursor: 'pointer' }}>Edit</button>
@@ -122,13 +151,18 @@ export default function InternalTeam() {
                       <div style={{ background: 'rgba(0,0,0,0.2)', borderBottom: '1px solid rgba(255,255,255,0.05)', padding: '15px' }}>
                         <div style={{ color: 'rgba(255,255,255,0.6)', fontSize: '12px', marginBottom: '12px', fontWeight: '600' }}>Assigned JDs ({r.assigned.length})</div>
                         <div style={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
-                          {r.assigned.map((jd, j) => (
+                          {r.assigned.map((jd, j) => {
+                            const flags = jdFlags[`${r.name}-${jd.title}`] || { critical: false, difficult: false };
+                            return (
                             <div key={j} style={{ display: 'flex', alignItems: 'center', justifyContent: 'space-between', padding: '10px 15px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px', border: '1px solid rgba(255,255,255,0.08)' }}>
                               <div>
                                 <div style={{ color: '#60a5fa', fontSize: '13px', fontWeight: '500' }}>{jd.title}</div>
-                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '4px' }}>
+                                <div style={{ display: 'flex', alignItems: 'center', gap: '8px', marginTop: '6px', flexWrap: 'wrap' }}>
                                   <span style={{ color: 'rgba(255,255,255,0.5)', fontSize: '11px' }}>{jd.client}</span>
                                   <span style={{ padding: '2px 8px', borderRadius: '10px', fontSize: '10px', fontWeight: '500', background: jd.status === 'active' ? 'rgba(34,197,94,0.2)' : 'rgba(107,114,128,0.2)', color: jd.status === 'active' ? '#22c55e' : '#6b7280' }}>{jd.status}</span>
+                                  {jd.deficit && <span style={{ padding: '2px 8px', borderRadius: '10px', fontSize: '10px', fontWeight: '500', background: 'rgba(239,68,68,0.2)', color: '#f87171' }}>deficit</span>}
+                                  <SliderToggle label="Critical" on={flags.critical} onChange={() => toggleFlag(r.name, jd.title, 'critical')} color="#ef4444" />
+                                  <SliderToggle label="Difficult" on={flags.difficult} onChange={() => toggleFlag(r.name, jd.title, 'difficult')} color="#a855f7" />
                                 </div>
                               </div>
                               <div style={{ display: 'flex', gap: '6px' }}>
@@ -137,12 +171,14 @@ export default function InternalTeam() {
                                 <button style={{ padding: '5px 10px', background: 'rgba(239,68,68,0.2)', border: 'none', borderRadius: '4px', color: '#ef4444', fontSize: '11px', cursor: 'pointer' }}>Remove</button>
                               </div>
                             </div>
-                          ))}
+                            );
+                          })}
                         </div>
                       </div>
                     )}
                   </div>
-                ))}
+                  );
+                })}
               </div>
             </div>
           </div>
