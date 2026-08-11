@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getClientIp, rateLimit } from '@/lib/rateLimit';
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = getClientIp(req);
+    if (!rateLimit(`interview-tts:${ip}`, 30, 10 * 60_000)) {
+      return NextResponse.json({ error: 'Too many requests, please try again later.' }, { status: 429 });
+    }
+
     const { text } = await req.json();
     const apiKey = process.env.ELEVEN_API_KEY;
 

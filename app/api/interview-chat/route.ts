@@ -1,7 +1,11 @@
 import { NextRequest, NextResponse } from 'next/server';
 import Anthropic from '@anthropic-ai/sdk';
+import { getClientIp, rateLimit } from '@/lib/rateLimit';
 
 const client = new Anthropic({ apiKey: process.env.ANTHROPIC_API_KEY });
+
+const MAX_MESSAGES = 40;
+const MAX_MESSAGE_CHARS = 2000;
 
 const SYSTEM_PROMPT = `You are a professional, friendly AI technical interviewer conducting a brief screening interview for a Senior Software Engineer position at Horizon Tech Partners. The role requires 4–8 years experience with Java, Spring Boot, microservices, AWS, and PostgreSQL.
 
@@ -36,10 +40,24 @@ Track state via the conversation history — just respond naturally based on wha
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = getClientIp(req);
+    if (!rateLimit(`interview-chat:${ip}`, 15, 10 * 60_000)) {
+      return NextResponse.json({ error: 'Too many requests, please try again later.' }, { status: 429 });
+    }
+
     const { messages } = await req.json();
 
+    if (!Array.isArray(messages) || messages.length > MAX_MESSAGES) {
+      return NextResponse.json({ error: 'Invalid conversation history.' }, { status: 400 });
+    }
+    for (const m of messages) {
+      if (typeof m?.content !== 'string' || m.content.length > MAX_MESSAGE_CHARS) {
+        return NextResponse.json({ error: 'Invalid message content.' }, { status: 400 });
+      }
+    }
+
     const response = await client.messages.create({
-      model: 'claude-sonnet-4-6',
+      model: 'claude-haiku-4-5',
       max_tokens: 300,
       system: SYSTEM_PROMPT,
       messages,

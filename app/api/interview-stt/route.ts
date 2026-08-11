@@ -1,7 +1,13 @@
 import { NextRequest, NextResponse } from 'next/server';
+import { getClientIp, rateLimit } from '@/lib/rateLimit';
 
 export async function POST(req: NextRequest) {
   try {
+    const ip = getClientIp(req);
+    if (!rateLimit(`interview-stt:${ip}`, 30, 10 * 60_000)) {
+      return NextResponse.json({ error: 'Too many requests, please try again later.' }, { status: 429 });
+    }
+
     const apiKey = process.env.DEEPGRAM_API_KEY;
     if (!apiKey) {
       return NextResponse.json({ error: 'Deepgram API key not configured' }, { status: 500 });
