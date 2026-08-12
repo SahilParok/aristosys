@@ -49,7 +49,7 @@ export default function Dashboard() {
   return (
     <div style={{ minHeight: '100vh', background: '#0f172a' }}>
       <DemoNav />
-      <main style={{ padding: '30px', maxWidth: '1400px', margin: '0 auto' }}>
+      <main className="dash-main" style={{ padding: '30px', maxWidth: '1400px', margin: '0 auto' }}>
         {/* Header */}
         <div style={{ marginBottom: '30px' }}>
           <h1 style={{ color: 'white', fontSize: '28px', fontWeight: '700', marginBottom: '8px' }}>Welcome back! 👋</h1>
@@ -57,7 +57,7 @@ export default function Dashboard() {
         </div>
 
         {/* Stats Grid */}
-        <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '30px' }}>
+        <div className="dash-stats" style={{ display: 'grid', gridTemplateColumns: 'repeat(4, 1fr)', gap: '20px', marginBottom: '30px' }}>
           <StatCard title="Total Clients" value={5} icon="🏢" color="#3b82f6" />
           <StatCard title="Active Jobs" value={12} icon="📋" color="#8b5cf6" />
           <StatCard title="Active Candidates" value={126} icon="👥" color="#10b981" />
@@ -65,7 +65,7 @@ export default function Dashboard() {
         </div>
 
         {/* Two Column Layout */}
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
+        <div className="dash-two-col" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '20px' }}>
           {/* Candidates Needing Attention */}
           <div style={{ background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', padding: '20px' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
@@ -111,7 +111,7 @@ export default function Dashboard() {
         </div>
 
         {/* Quick Actions */}
-        <div style={{ marginTop: '30px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px' }}>
+        <div className="dash-quick" style={{ marginTop: '30px', display: 'grid', gridTemplateColumns: 'repeat(3, 1fr)', gap: '15px' }}>
           {[
             { icon: '🔍', label: 'Screen Candidates', href: '/screen' },
             { icon: '📋', label: 'View Jobs', href: '/jobs' },
@@ -124,6 +124,14 @@ export default function Dashboard() {
           ))}
         </div>
       </main>
+      <style jsx>{`
+        @media (max-width: 640px) {
+          .dash-main { padding: 16px !important; }
+          .dash-stats { grid-template-columns: repeat(2, 1fr) !important; gap: 12px !important; }
+          .dash-two-col { grid-template-columns: 1fr !important; }
+          .dash-quick { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </div>
   );
 }
