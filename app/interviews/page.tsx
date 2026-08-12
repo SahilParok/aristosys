@@ -237,7 +237,7 @@ export default function InterviewsPage() {
   return (
     <div style={{ minHeight: '100vh', background: '#0f172a' }}>
       <DemoNav />
-      <main style={{ padding: '30px', maxWidth: '900px', margin: '0 auto' }}>
+      <main className="int-main" style={{ padding: '30px', maxWidth: '900px', margin: '0 auto' }}>
         <div style={{ marginBottom: '24px' }}>
           <h1 style={{ color: 'white', fontSize: '28px', fontWeight: '700', marginBottom: '8px' }}>🎙️ AI Interview Demo</h1>
           <p style={{ color: 'rgba(255,255,255,0.6)', margin: 0 }}>Try a live AI voice interview — Senior Software Engineer position</p>
@@ -275,7 +275,7 @@ export default function InterviewsPage() {
         {state === 'idle' && transcript.length === 0 && (
           <div style={{ padding: '24px', background: 'rgba(255,255,255,0.03)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '12px', marginBottom: '20px' }}>
             <h2 style={{ color: '#d4af37', fontSize: '16px', fontWeight: '700', marginBottom: '16px' }}>How It Works</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '20px' }}>
+            <div className="int-how" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr', gap: '16px', marginBottom: '20px' }}>
               {[
                 { icon: '🎙️', title: 'You Speak', desc: 'Answer questions using your microphone' },
                 { icon: '🤖', title: 'AI Listens & Responds', desc: 'Claude processes your answer, ElevenLabs speaks back' },
@@ -314,7 +314,7 @@ export default function InterviewsPage() {
 
         {/* Scores — shown when ended */}
         {state === 'ended' && (
-          <div style={{ marginTop: '20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
+          <div className="int-scores" style={{ marginTop: '20px', display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '16px' }}>
             <div style={{ padding: '20px', background: 'rgba(16,185,129,0.08)', border: '1px solid rgba(16,185,129,0.2)', borderRadius: '10px', textAlign: 'center' }}>
               <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginBottom: '6px' }}>Technical Score</div>
               <div style={{ fontSize: '36px', fontWeight: '800', color: '#10b981' }}>{Math.floor(Math.random() * 15) + 72}</div>
@@ -331,6 +331,11 @@ export default function InterviewsPage() {
         @keyframes pulse {
           0%, 100% { opacity: 1; }
           50% { opacity: 0.5; }
+        }
+        @media (max-width: 640px) {
+          .int-main { padding: 16px !important; }
+          .int-how { grid-template-columns: 1fr !important; }
+          .int-scores { grid-template-columns: 1fr !important; }
         }
       `}</style>
     </div>

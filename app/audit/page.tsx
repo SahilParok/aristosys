@@ -80,7 +80,7 @@ export default function Audit() {
   return (
     <div style={{ minHeight: '100vh', background: '#0f172a' }}>
       <DemoNav />
-      <div style={{ maxWidth: '1200px', margin: '0 auto', padding: '28px 32px' }}>
+      <div className="audit-main" style={{ maxWidth: '1200px', margin: '0 auto', padding: '28px 32px' }}>
         <h1 style={{ color: 'white', fontSize: '24px', fontWeight: 700, marginBottom: '6px' }}>Audit Log</h1>
         <p style={{ fontSize: '13px', color: 'rgba(255,255,255,0.45)', marginBottom: '20px' }}>
           Full history of all actions across the system — every action is traceable to a user, time, JD, and candidate.
@@ -132,8 +132,8 @@ export default function Audit() {
           {filtered.map((a, i) => {
             const color = ACTION_COLORS[a.action] || '#6b7280';
             return (
-              <div key={i} style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '12px 16px', background: 'rgba(184,151,90,0.06)', borderRadius: '8px', border: '1px solid rgba(184,151,90,0.12)' }}>
-                <span style={{ padding: '3px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: 600, color, background: color + '15', border: `1px solid ${color}30`, whiteSpace: 'nowrap', minWidth: '170px', textAlign: 'center' }}>{a.action}</span>
+              <div className="audit-row" style={{ display: 'flex', alignItems: 'center', gap: '14px', padding: '12px 16px', background: 'rgba(184,151,90,0.06)', borderRadius: '8px', border: '1px solid rgba(184,151,90,0.12)', flexWrap: 'wrap' }}>
+                <span className="audit-badge" style={{ padding: '3px 10px', borderRadius: '4px', fontSize: '11px', fontWeight: 600, color, background: color + '15', border: `1px solid ${color}30`, whiteSpace: 'nowrap', minWidth: '170px', textAlign: 'center' }}>{a.action}</span>
                 <div style={{ flex: 1, minWidth: 0 }}>
                   <div style={{ fontSize: '13px', color: 'rgba(255,255,255,0.8)' }}>{a.detail}</div>
                   <div style={{ fontSize: '11px', color: 'rgba(255,255,255,0.4)', marginTop: '3px' }}>
@@ -148,6 +148,12 @@ export default function Audit() {
           {filtered.length === 0 && <div style={{ padding: '40px', textAlign: 'center', color: 'rgba(255,255,255,0.4)', fontSize: '13px', background: 'rgba(255,255,255,0.03)', borderRadius: '8px' }}>No audit events match the selected filters.</div>}
         </div>
       </div>
+      <style jsx>{`
+        @media (max-width: 640px) {
+          .audit-main { padding: 16px !important; }
+          .audit-badge { min-width: 0 !important; }
+        }
+      `}</style>
     </div>
   );
 }

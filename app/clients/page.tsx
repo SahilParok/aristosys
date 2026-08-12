@@ -31,13 +31,13 @@ export default function ClientsPage() {
   return (
     <div style={{ minHeight: '100vh', background: '#0f172a' }}>
       <DemoNav />
-      <main style={{ padding: '30px', maxWidth: '1200px', margin: '0 auto' }}>
+      <main className="clients-main" style={{ padding: '30px', maxWidth: '1200px', margin: '0 auto' }}>
         <div style={{ marginBottom: '30px' }}>
           <h1 style={{ color: 'white', fontSize: '28px', fontWeight: '700', marginBottom: '8px' }}>🏢 Manage Clients</h1>
           <p style={{ color: 'rgba(255,255,255,0.6)', margin: 0 }}>Add and configure client companies with their evaluation preferences</p>
         </div>
 
-        <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
+        <div className="clients-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '30px' }}>
           {/* Left - Form */}
           <div style={{ background: cardBg, border: cardBorder, borderRadius: '12px', padding: '25px' }}>
             <h3 style={{ color: 'white', fontSize: '18px', marginBottom: '20px' }}>
@@ -135,6 +135,12 @@ export default function ClientsPage() {
           </div>
         </div>
       </main>
+      <style jsx>{`
+        @media (max-width: 640px) {
+          .clients-main { padding: 16px !important; }
+          .clients-grid { grid-template-columns: 1fr !important; gap: 20px !important; }
+        }
+      `}</style>
     </div>
   );
 }

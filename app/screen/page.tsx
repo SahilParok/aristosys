@@ -112,14 +112,14 @@ function ScreenPageContent() {
   return (
     <div style={{ minHeight: '100vh', background: '#0f172a' }}>
       <DemoNav />
-      <main style={{ padding: '30px', maxWidth: '1400px', margin: '0 auto' }}>
+      <main className="screen-main" style={{ padding: '30px', maxWidth: '1400px', margin: '0 auto' }}>
         <div style={{ marginBottom: '30px' }}>
           <h1 style={{ color: 'white', fontSize: '28px', fontWeight: '700', marginBottom: '8px' }}>🔍 Screen Candidates</h1>
           <p style={{ color: 'rgba(255,255,255,0.6)', margin: 0 }}>Upload resumes to analyze and score against job requirements</p>
         </div>
 
         {/* Progress Steps */}
-        <div style={{ display: 'flex', gap: '10px', marginBottom: '30px', background: cardBg, padding: '20px', borderRadius: '12px', border: cardBorder }}>
+        <div className="screen-steps" style={{ display: 'flex', gap: '10px', marginBottom: '30px', background: cardBg, padding: '20px', borderRadius: '12px', border: cardBorder, flexWrap: 'wrap' }}>
           <StepIndicator number={1} label="Select Job" active={step === 1} completed={step > 1} />
           <StepConnector completed={step > 1} />
           <StepIndicator number={2} label="Upload Resumes" active={step === 2} completed={step > 2} />
@@ -131,7 +131,7 @@ function ScreenPageContent() {
         {step === 1 && (
           <div style={{ background: cardBg, border: cardBorder, borderRadius: '12px', padding: '30px' }}>
             <h2 style={{ color: 'white', fontSize: '20px', marginBottom: '25px' }}>Step 1: Select Job Details</h2>
-            <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '20px' }}>
+            <div className="screen-form-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr 1fr 1fr', gap: '20px' }}>
               <div>
                 <label style={{ display: 'block', color: 'rgba(255,255,255,0.8)', marginBottom: '8px', fontSize: '14px' }}>Client *</label>
                 <select value={client} onChange={e => { setClient(e.target.value); setJd(''); }} style={selectStyle}>
@@ -212,7 +212,7 @@ function ScreenPageContent() {
               </div>
             )}
 
-            <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(results.length, 3)}, 1fr)`, gap: '20px' }}>
+            <div className="screen-results-grid" style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.min(results.length, 3)}, 1fr)`, gap: '20px' }}>
               {results.map((c, i) => (
                 <div key={i} style={{ background: cardBg, border: cardBorder, borderRadius: '12px', overflow: 'hidden' }}>
                   <div style={{ padding: '20px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
@@ -258,6 +258,14 @@ function ScreenPageContent() {
           </div>
         )}
       </main>
+      <style jsx>{`
+        @media (max-width: 640px) {
+          .screen-main { padding: 16px !important; }
+          .screen-steps { gap: 16px !important; }
+          .screen-form-grid { grid-template-columns: 1fr !important; }
+          .screen-results-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </div>
   );
 }

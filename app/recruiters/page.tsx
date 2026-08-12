@@ -97,13 +97,13 @@ export default function InternalTeam() {
   return (
     <div style={{ minHeight: '100vh', background: '#0f172a' }}>
       <DemoNav />
-      <main style={{ padding: '30px', maxWidth: '1400px', margin: '0 auto' }}>
+      <main className="team-main" style={{ padding: '30px', maxWidth: '1400px', margin: '0 auto' }}>
         <div style={{ marginBottom: '30px' }}>
           <h1 style={{ color: 'white', fontSize: '28px', fontWeight: '700', marginBottom: '8px' }}>👥 Internal Team</h1>
           <p style={{ color: 'rgba(255,255,255,0.6)', margin: 0 }}>Manage recruiters, managers, and internal panel members</p>
         </div>
 
-        <div style={{ display: 'flex', gap: '10px', marginBottom: '25px' }}>
+        <div style={{ display: 'flex', gap: '10px', marginBottom: '25px', flexWrap: 'wrap' }}>
           {tabBtn('recruiters', RECRUITERS.length, 'rgba(59,130,246)', '#60a5fa')}
           {tabBtn('managers', MANAGERS.length, 'rgba(139,92,246)', '#a78bfa')}
           {tabBtn('panel', PANEL.length, 'rgba(16,185,129)', '#34d399')}
@@ -111,7 +111,7 @@ export default function InternalTeam() {
 
         {/* ===== RECRUITERS ===== */}
         {tab === 'recruiters' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: '30px' }}>
+          <div className="team-grid" style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: '30px' }}>
             {/* Form */}
             <div style={{ background: cardBg, border: cardBorder, borderRadius: '12px', padding: '25px' }}>
               <h3 style={{ color: 'white', fontSize: '18px', marginBottom: '20px' }}>➕ Add New Recruiter</h3>
@@ -133,7 +133,7 @@ export default function InternalTeam() {
                   const deficitJds = r.assigned.filter(j => j.deficit).length;
                   return (
                   <div key={i}>
-                    <div style={{ padding: '15px 25px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '15px', background: expanded === r.name ? 'rgba(59,130,246,0.1)' : 'transparent' }}>
+                    <div style={{ padding: '15px 25px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '15px', flexWrap: 'wrap', background: expanded === r.name ? 'rgba(59,130,246,0.1)' : 'transparent' }}>
                       <div style={{ flex: 1 }}>
                         <div style={{ color: 'white', fontSize: '14px', fontWeight: '500' }}>{r.name}</div>
                         <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px' }}>{r.email}</div>
@@ -186,7 +186,7 @@ export default function InternalTeam() {
 
         {/* ===== MANAGERS ===== */}
         {tab === 'managers' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: '30px' }}>
+          <div className="team-grid" style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: '30px' }}>
             <div style={{ background: cardBg, border: cardBorder, borderRadius: '12px', padding: '25px' }}>
               <h3 style={{ color: 'white', fontSize: '18px', marginBottom: '20px' }}>➕ Add New Manager</h3>
               <div style={{ marginBottom: '20px' }}><label style={{ display: 'block', color: 'rgba(255,255,255,0.8)', marginBottom: '8px', fontSize: '14px' }}>Name *</label><input placeholder="e.g., Jane Doe" style={inputStyle} /></div>
@@ -202,7 +202,7 @@ export default function InternalTeam() {
               <div style={{ maxHeight: '600px', overflow: 'auto' }}>
                 {MANAGERS.map((m, i) => (
                   <div key={i}>
-                    <div style={{ padding: '15px 25px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '15px', background: expanded === m.name ? 'rgba(139,92,246,0.1)' : 'transparent' }}>
+                    <div style={{ padding: '15px 25px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '15px', flexWrap: 'wrap', background: expanded === m.name ? 'rgba(139,92,246,0.1)' : 'transparent' }}>
                       <div style={{ flex: 1 }}>
                         <div style={{ color: 'white', fontSize: '14px', fontWeight: '500' }}>{m.name}</div>
                         <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px' }}>{m.email} · {m.phone}</div>
@@ -239,7 +239,7 @@ export default function InternalTeam() {
 
         {/* ===== INTERNAL PANEL ===== */}
         {tab === 'panel' && (
-          <div style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: '30px' }}>
+          <div className="team-grid" style={{ display: 'grid', gridTemplateColumns: '380px 1fr', gap: '30px' }}>
             <div style={{ background: cardBg, border: cardBorder, borderRadius: '12px', padding: '25px' }}>
               <h3 style={{ color: 'white', fontSize: '18px', marginBottom: '20px' }}>➕ Add Panel Member</h3>
               <div style={{ marginBottom: '20px' }}><label style={{ display: 'block', color: 'rgba(255,255,255,0.8)', marginBottom: '8px', fontSize: '14px' }}>Name *</label><input placeholder="e.g., Vikash Kumar" style={inputStyle} /></div>
@@ -254,7 +254,7 @@ export default function InternalTeam() {
               </div>
               <div>
                 {PANEL.map((p, i) => (
-                  <div key={i} style={{ padding: '15px 25px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '15px' }}>
+                  <div key={i} style={{ padding: '15px 25px', borderBottom: '1px solid rgba(255,255,255,0.05)', display: 'flex', alignItems: 'center', gap: '15px', flexWrap: 'wrap' }}>
                     <div style={{ flex: 1 }}>
                       <div style={{ color: 'white', fontSize: '14px', fontWeight: '500' }}>{p.name}</div>
                       <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '12px' }}>{p.email} · {p.phone}</div>
@@ -269,6 +269,12 @@ export default function InternalTeam() {
           </div>
         )}
       </main>
+      <style jsx>{`
+        @media (max-width: 640px) {
+          .team-main { padding: 16px !important; }
+          .team-grid { grid-template-columns: 1fr !important; gap: 20px !important; }
+        }
+      `}</style>
     </div>
   );
 }

@@ -180,12 +180,12 @@ function JobsPageContent() {
   }
 
   return (
-    <div style={{ height: '100vh', background: '#0f172a', overflow: 'hidden' }}>
+    <div className="jobs-root" style={{ height: '100vh', background: '#0f172a', overflow: 'hidden' }}>
       <DemoNav />
 
-      <div style={{ display: 'flex', height: 'calc(100vh - 53px)' }}>
+      <div className="jobs-layout" style={{ display: 'flex', height: 'calc(100vh - 53px)' }}>
         {/* Left Sidebar */}
-        <div style={{ width: '350px', borderRight: '1px solid rgba(255,255,255,0.1)', display: 'flex', flexDirection: 'column' }}>
+        <div className="jobs-sidebar" style={{ width: '350px', borderRight: '1px solid rgba(255,255,255,0.1)', display: 'flex', flexDirection: 'column' }}>
           <div style={{ padding: '20px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
             <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center', marginBottom: '15px' }}>
               <h2 style={{ color: 'white', fontSize: '18px', fontWeight: '600', margin: 0 }}>Jobs</h2>
@@ -221,8 +221,8 @@ function JobsPageContent() {
           {jd ? (
             <>
               {/* JD Header */}
-              <div style={{ padding: '20px' }}>
-                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start' }}>
+              <div className="jobs-header" style={{ padding: '20px' }}>
+                <div style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'flex-start', flexWrap: 'wrap', gap: '12px' }}>
                   <div>
                     <h2 style={{ color: 'white', fontSize: '22px', fontWeight: '600', margin: '0 0 5px 0' }}>{jd.title}</h2>
                     <div style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px' }}>
@@ -235,7 +235,7 @@ function JobsPageContent() {
                       <span style={{ padding: '4px 10px', borderRadius: '15px', fontSize: '11px', background: 'rgba(139,92,246,0.2)', color: '#a78bfa' }}>Client Manager{jd.client_managers.length > 1 ? 's' : ''}: {jd.client_managers.join(', ')}</span>
                     </div>
                   </div>
-                  <div style={{ display: 'flex', gap: '10px' }}>
+                  <div style={{ display: 'flex', gap: '10px', flexWrap: 'wrap' }}>
                     {['📄 View JD', '📤 Upload JD', '✏️ Edit JD'].map(b => (
                       <button key={b} onClick={b === '✏️ Edit JD' ? () => setEditJDOpen(true) : undefined} style={{ padding: '8px 15px', background: 'rgba(59,130,246,0.2)', border: '1px solid rgba(59,130,246,0.3)', borderRadius: '6px', color: '#60a5fa', fontSize: '12px', cursor: 'pointer' }}>{b}</button>
                     ))}
@@ -290,8 +290,8 @@ function JobsPageContent() {
                 )}
 
                 {/* Search & Filter */}
-                <div style={{ display: 'flex', gap: '15px', marginTop: '20px' }}>
-                  <input placeholder="Search candidates..." value={search} onChange={e => setSearch(e.target.value)} style={{ flex: 1, padding: '10px 15px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: 'white', fontSize: '14px' }} />
+                <div className="jobs-search-row" style={{ display: 'flex', gap: '15px', marginTop: '20px', flexWrap: 'wrap' }}>
+                  <input placeholder="Search candidates..." value={search} onChange={e => setSearch(e.target.value)} style={{ flex: 1, minWidth: '200px', padding: '10px 15px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: 'white', fontSize: '14px' }} />
                   <select value={stageFilter} onChange={e => setStageFilter(e.target.value)} style={{ padding: '10px 15px', background: 'rgba(255,255,255,0.05)', border: '1px solid rgba(255,255,255,0.1)', borderRadius: '8px', color: 'white', fontSize: '14px', minWidth: '180px' }}>
                     <option value="">All Stages</option>
                     {Object.entries(STAGE_LABELS).map(([k, v]) => <option key={k} value={k} style={{ background: '#1e293b' }}>{v}</option>)}
@@ -302,8 +302,8 @@ function JobsPageContent() {
               </div>
 
               {/* Candidates Table */}
-              <div style={{ padding: '0 20px 20px' }}>
-                <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+              <div style={{ padding: '0 20px 20px', overflowX: 'auto' }}>
+                <table style={{ width: '100%', minWidth: '760px', borderCollapse: 'collapse' }}>
                   <thead>
                     <tr style={{ borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
                       {[
@@ -371,7 +371,7 @@ function JobsPageContent() {
               <button onClick={() => setEditJDOpen(false)} style={{ padding: '8px 16px', background: 'rgba(255,255,255,0.1)', border: 'none', borderRadius: '6px', cursor: 'pointer', color: 'white', fontSize: '13px' }}>Close</button>
             </div>
             <div style={{ padding: '20px 24px' }}>
-              <div style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '18px' }}>
+              <div className="jobs-modal-grid" style={{ display: 'grid', gridTemplateColumns: '1fr 1fr', gap: '14px', marginBottom: '18px' }}>
                 {[
                   ['JD Title', jd.title],
                   ['Client', CLIENTS.find(c => c.id === jd.client_id)?.name || ''],
@@ -438,6 +438,16 @@ function JobsPageContent() {
           </div>
         );
       })()}
+
+      <style jsx>{`
+        @media (max-width: 640px) {
+          .jobs-root { height: auto !important; overflow: visible !important; }
+          .jobs-layout { flex-direction: column !important; height: auto !important; }
+          .jobs-sidebar { width: 100% !important; border-right: none !important; border-bottom: 1px solid rgba(255,255,255,0.1) !important; max-height: 300px !important; }
+          .jobs-header { padding: 16px !important; }
+          .jobs-modal-grid { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </div>
   );
 }

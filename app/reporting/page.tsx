@@ -193,14 +193,14 @@ export default function Reporting() {
   return (
     <div style={{ minHeight: '100vh', background: '#0f172a' }}>
       <DemoNav />
-      <main style={{ padding: '30px', maxWidth: '1400px', margin: '0 auto' }}>
+      <main className="rpt-main" style={{ padding: '30px', maxWidth: '1400px', margin: '0 auto' }}>
         <div style={{ marginBottom: '20px' }}>
           <h1 style={{ color: 'white', fontSize: '28px', fontWeight: '700', marginBottom: '8px' }}>📊 Reports</h1>
           <p style={{ color: 'rgba(255,255,255,0.6)', margin: 0 }}>Track candidate aging and JD submissions</p>
         </div>
 
         {/* Tabs */}
-        <div style={{ display: 'flex', gap: '10px', marginBottom: '25px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '15px' }}>
+        <div style={{ display: 'flex', gap: '10px', marginBottom: '25px', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '15px', flexWrap: 'wrap' }}>
           {tabBtn('aging', '⏱️', 'Candidate Aging')}
           {tabBtn('submissions', '📋', 'Fill Rate')}
           {tabBtn('no_audio', '🎙️', 'Missing Audio Scores')}
@@ -213,7 +213,7 @@ export default function Reporting() {
             <h2 style={{ color: 'white', fontSize: '20px', fontWeight: '600', marginBottom: '5px' }}>Candidate Aging Report</h2>
             <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px', margin: 0 }}>Track how long candidates have been in each stage (Active jobs only)</p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '15px', marginBottom: '25px' }}>
+          <div className="rpt-grid4" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '15px', marginBottom: '25px' }}>
             <SumCard label="Total" value={AGING.length} />
             <SumCard label="Green (<3 days)" value={greenCount} color="#10b981" />
             <SumCard label="Yellow (3-7 days)" value={yellowCount} color="#f59e0b" />
@@ -232,8 +232,8 @@ export default function Reporting() {
               <CheckboxList label="Filter by Recruiter(s)" options={recruitersList} selected={agingRecruiters} onChange={setAgingRecruiters} />
             </div>
           </div>
-          <div style={{ background: cardBg, border: cardBorder, borderRadius: '12px', overflow: 'hidden' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <div style={{ background: cardBg, border: cardBorder, borderRadius: '12px', overflow: 'hidden', overflowX: 'auto' }}>
+            <table style={{ width: '100%', minWidth: '700px', borderCollapse: 'collapse' }}>
               <thead><tr style={{ background: 'rgba(255,255,255,0.03)' }}>
                 <SortTh label="Candidate" sortKey="name" currentKey={agingSortKey} dir={agingSortDir} onSort={onAgingSort} />
                 <SortTh label="Job" sortKey="job" currentKey={agingSortKey} dir={agingSortDir} onSort={onAgingSort} />
@@ -276,7 +276,7 @@ export default function Reporting() {
             <h2 style={{ color: 'white', fontSize: '20px', fontWeight: '600', marginBottom: '5px' }}>Fill Rate</h2>
             <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px', margin: 0 }}>View candidate submissions for each active job, sorted by deficit</p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '15px', marginBottom: '25px' }}>
+          <div className="rpt-grid4" style={{ display: 'grid', gridTemplateColumns: 'repeat(4,1fr)', gap: '15px', marginBottom: '25px' }}>
             <SumCard label="Total Active JDs" value={SUBMISSIONS.length} />
             <SumCard label="Active Candidates" value={SUBMISSIONS.reduce((s, j) => s + j.active, 0)} color="#3b82f6" />
             <SumCard label="Positions Filled" value={SUBMISSIONS.reduce((s, j) => s + j.filled, 0)} color="#10b981" />
@@ -290,8 +290,8 @@ export default function Reporting() {
               <CheckboxList label="Filter by Recruiter(s)" options={fillRecruitersList} selected={fillRecruiters} onChange={setFillRecruiters} />
             </div>
           </div>
-          <div style={{ background: cardBg, border: cardBorder, borderRadius: '12px', overflow: 'hidden' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <div style={{ background: cardBg, border: cardBorder, borderRadius: '12px', overflow: 'hidden', overflowX: 'auto' }}>
+            <table style={{ width: '100%', minWidth: '700px', borderCollapse: 'collapse' }}>
               <thead><tr style={{ background: 'rgba(255,255,255,0.03)' }}>
                 <SortTh label="Job Title" sortKey="title" currentKey={fillSortKey} dir={fillSortDir} onSort={onFillSort} />
                 <SortTh label="Client" sortKey="client" currentKey={fillSortKey} dir={fillSortDir} onSort={onFillSort} />
@@ -334,12 +334,12 @@ export default function Reporting() {
             <h2 style={{ color: 'white', fontSize: '20px', fontWeight: '600', marginBottom: '5px' }}>Candidates Missing Audio Scores</h2>
             <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px', margin: 0 }}>Candidates at &quot;Submitted to Client&quot; stage who have not been audio-screened</p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '15px', marginBottom: '25px', maxWidth: '500px' }}>
+          <div className="rpt-grid2" style={{ display: 'grid', gridTemplateColumns: 'repeat(2,1fr)', gap: '15px', marginBottom: '25px', maxWidth: '500px' }}>
             <SumCard label="Total Missing Audio" value={NO_AUDIO.length} />
             <SumCard label="Oldest (days)" value={NO_AUDIO[0]?.days || 0} color="#f59e0b" />
           </div>
-          <div style={{ background: cardBg, border: cardBorder, borderRadius: '12px', overflow: 'hidden' }}>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+          <div style={{ background: cardBg, border: cardBorder, borderRadius: '12px', overflow: 'hidden', overflowX: 'auto' }}>
+            <table style={{ width: '100%', minWidth: '700px', borderCollapse: 'collapse' }}>
               <thead><tr style={{ background: 'rgba(255,255,255,0.03)' }}>
                 <SortTh label="Candidate" sortKey="name" currentKey={noAudioSortKey} dir={noAudioSortDir} onSort={onNoAudioSort} />
                 <SortTh label="Job" sortKey="job" currentKey={noAudioSortKey} dir={noAudioSortDir} onSort={onNoAudioSort} />
@@ -374,26 +374,26 @@ export default function Reporting() {
             <h2 style={{ color: 'white', fontSize: '20px', fontWeight: '600', marginBottom: '5px' }}>Hit Ratio Report</h2>
             <p style={{ color: 'rgba(255,255,255,0.5)', fontSize: '13px', margin: 0 }}>Conversion ratios for CLOSED positions only — shows how many candidates at each stage to get one joiner</p>
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '15px', marginBottom: '15px' }}>
+          <div className="rpt-grid3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '15px', marginBottom: '15px' }}>
             <RatioCard label="Submissions → L1" value={`${HIT_RATIO.subToL1}:1`} detail={`${HIT_RATIO.submittedToClient} submitted / ${HIT_RATIO.l1} L1`} color="#60a5fa" />
             <RatioCard label="L1 → L2" value={`${HIT_RATIO.l1ToL2}:1`} detail={`${HIT_RATIO.l1} L1 / ${HIT_RATIO.l2} L2`} color="#f59e0b" />
             <RatioCard label="L2 → Selected" value={`${HIT_RATIO.l2ToSelect}:1`} detail={`${HIT_RATIO.l2} L2 / ${HIT_RATIO.selected} selected`} color="#a78bfa" />
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '15px', marginBottom: '20px' }}>
+          <div className="rpt-grid3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '15px', marginBottom: '20px' }}>
             <RatioCard label="Selected → Joiner" value={`${HIT_RATIO.selectToJoiner}:1`} detail={`${HIT_RATIO.selected} selected / ${HIT_RATIO.joiners} joined`} color="#10b981" />
             <RatioCard label="Submissions / Joiner" value={`${HIT_RATIO.subPerJoiner}:1`} detail={`${HIT_RATIO.submittedToClient} submitted → ${HIT_RATIO.joiners} joined`} color="#ec4899" />
             <RatioCard label="Avg TAT (Days)" value={`${HIT_RATIO.avgTAT}`} detail="Req date → First joiner billing" color="#818cf8" />
           </div>
-          <div style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '15px', marginBottom: '20px' }}>
+          <div className="rpt-grid3" style={{ display: 'grid', gridTemplateColumns: 'repeat(3,1fr)', gap: '15px', marginBottom: '20px' }}>
             <SumCard label="Closed JDs" value={HIT_RATIO.totalJDs} />
             <SumCard label="Total Candidates" value={HIT_RATIO.totalCandidates} />
             <SumCard label="Total Joiners" value={HIT_RATIO.joiners} color="#10b981" />
           </div>
-          <div style={{ background: cardBg, border: cardBorder, borderRadius: '12px', overflow: 'hidden' }}>
+          <div style={{ background: cardBg, border: cardBorder, borderRadius: '12px', overflow: 'hidden', overflowX: 'auto' }}>
             <div style={{ padding: '15px 20px', borderBottom: '1px solid rgba(255,255,255,0.1)' }}>
               <h3 style={{ color: 'white', fontSize: '14px', fontWeight: '600', margin: 0 }}>Breakdown by Closed JD ({HIT_JDS.length})</h3>
             </div>
-            <table style={{ width: '100%', borderCollapse: 'collapse' }}>
+            <table style={{ width: '100%', minWidth: '700px', borderCollapse: 'collapse' }}>
               <thead><tr style={{ background: 'rgba(255,255,255,0.03)' }}>
                 <SortTh label="Job Title" sortKey="title" currentKey={hitSortKey} dir={hitSortDir} onSort={onHitSort} />
                 <SortTh label="Client" sortKey="client" currentKey={hitSortKey} dir={hitSortDir} onSort={onHitSort} />
@@ -422,6 +422,14 @@ export default function Reporting() {
           </div>
         </>)}
       </main>
+      <style jsx>{`
+        @media (max-width: 640px) {
+          .rpt-main { padding: 16px !important; }
+          .rpt-grid4 { grid-template-columns: repeat(2,1fr) !important; }
+          .rpt-grid3 { grid-template-columns: 1fr !important; }
+          .rpt-grid2 { grid-template-columns: 1fr !important; }
+        }
+      `}</style>
     </div>
   );
 }
